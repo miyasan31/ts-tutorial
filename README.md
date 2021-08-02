@@ -657,3 +657,218 @@ d, e - 例外をスローしたり、永久に実行される場合、呼び出�
 
 ### 列挙型
 列挙型の安全な仕様には落とし穴が伴うため、列挙型の使用は控えることをお勧めする
+
+# 関数
+
+# クラスとインターフェース
+
+## クラスと継承
+
+
+### アクセス修飾子
+- public
+    - どこからでもアクセス可能
+    - デフォルト
+- protected
+    - このクラスとサブクラスのインスタンスからアクセス可能
+    - インスタンスからもextendsしたクラスからもアクセス可能
+- private
+    - このクラスのインスタンスからアクセス可能
+    - extendsしたサブクラスからはアクセス不可
+
+### abstract class （抽象クラス）
+- 抽象クラスを直接インスタンス化しようとするとエラーを吐く
+- そのクラスをそのまま使って欲しくない時、そのクラスを拡張（継承）して使って欲しい時にabstractをクラスに指定する
+
+```typescript=
+type Color = 'Black' | 'White';
+type Filed = 'A' | 'B' | 'C' | 'D' | 'E' | 'F';
+type Rank = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+
+class Position {
+  constructor(private filed: Filed, private rank: Rank) {}
+}
+
+// ①
+class Piece {
+  protected position: Position;
+  constructor(private readonly color: Color, filed: Filed, rank: Rank) {
+    this.position = new Position(filed, rank);
+  }
+}
+// 制限がないので直接インスタンスが作れる
+const Queen = new Piece('Black', 'A', 2);
+
+// ②
+abstract class AbstractPiece {
+  protected position: Position;
+  constructor(private readonly color: Color, filed: Filed, rank: Rank) {
+    this.position = new Position(filed, rank);
+  }
+}
+// abstract（抽象クラス）を付与すると直接インスタンスが作れない
+const King = new AbstractPiece('Black', 'A', 2); // Error!!
+
+class AbstractInstancePiece extends AbstractPiece {
+  constructor(color: Color, field: Filed, rank: Rank) {
+    super(color, field, rank);
+  }
+}
+// abstract（抽象クラス）を継承したクラスは直接インスタンスが作れる
+const Jack = new AbstractInstancePiece('Black', 'A', 2); // OK!!
+```
+
+### super
+
+- 子クラス（継承された側）が親クラス（継承元）で定義されたメソッドをオーバーライドする場合、子クラスのインスタンスはsuper()を呼び出す必要がある
+- superの呼び出し方
+    1. 親クラスのメソッドの呼び出し
+        - super.add()
+    1. コンストラクター呼び出し
+        - 子にconstructor()がある場合、クラスを正しく設定するために子クラスのconstructor()からsuper()を使って呼び出す必要がある
+
+:::warning
+🐝 super()を使ってアクセスできるのは親クラスのメソッドだけであり、プロパティにはアクセスできない
+:::
+
+### インターフェース
+- 型エイリアスと同様に、インターフェースは型に名前をつけるための方法
+
+```typescript=
+// 型エイリアス
+type Sushi = {
+    calories: number
+    salty: boolean
+    tasty: boolean
+}
+
+// インターフェース
+interface Sushi {
+    calories: number
+    salty: boolean
+    tasty: boolean
+}
+```
+どちらの宣言もオブジェクトの形状を定義しており、互いに割り当てが可能だが型を組み合わせた時にそれらは違う挙動をする
+
+#### インターフェースと型エイリアスの違い
+1. 型の拡張方法
+
+    型エイリアスの方が右辺に任意の型を指定でて、より汎用的な型付けができる
+    型エイリアスの右辺には型の式（&, |）を指定できる
+    ```typescript=
+    // 型エイリアス
+    type Food = {
+        calories: number
+    }
+    type Sushi = Food & { // 交差型
+        salty: boolean
+    }
+    type Cake = Food | { // 合併型
+        tasty: boolean
+    }
+    ```
+    インターフェースの場合、右辺はオブジェクト出ないといけない
+    ```typescript=
+    // インターフェース
+    interface Food {
+        calories: number
+    }
+    interface Sushi extends Food {
+        salty: boolean
+    }
+    interface Cake extends Food {
+        tasty: boolean
+    }
+    ```
+1. インターフェースを拡張する場合に、TypeScriptは拡張元のインターフェースが拡張先のインターフェースに割り当て可能かどうかを確認する
+
+    ```typescript=
+    interface A {
+        good(X: number): string
+        bad(Y: number): string
+    }
+
+    interface B extends A {
+        good(X: string | number): string // OK!!
+        bad(Y: number): string // Error:bad()のパラメータを拡張できていません
+    }
+    ```
+1. 同じスコープ内に同じ名前のインターフェースが複数存在する場合、それらは自動的にマージされてしまう
+
+    **宣言のマージ**
+    
+```typescript=
+  // 型エイリアス
+type User = {
+    name: string
+}
+type User = { // Error:Userという型宣言が重複
+    age: number
+}
+```
+
+```typescript=
+  // インターフェース
+interface User {
+    name: string
+}
+interface User { // OK!!
+    age: number // この時点でUserは{ name, age }という型を持っている
+}
+```
+
+#### インターフェースの実装
+
+- クラスを宣言するときに、伊ｍｐぇ面ｔｓキーワードを使うと、そのクラスが特定のインターフェースを満たしていることを実現できる
+- クラスが正しく実装されているという型レベルの制約を追加することができる
+- Catは、Animalが宣言しているすべてのメソッドを実装する必要があり、希望すればその他のメソッドも定義することができる
+
+```typescript=
+interface Animal {
+    eat(food: string): void
+    sleep(hours: number): void
+}
+
+class Cat implements Animal {
+    eat(food: string) {
+        console.log('Ate some', food, '. Mmm!')
+    }
+    sleep(hours: number) {
+        console.log('Slept for', hours, 'hours')
+    }
+}
+```
+- インターフェースは、アクセス修飾子を宣言することができず、staticも使うことができない
+- その代わりにreadonlyを指定することができる
+```typescript=
+interface Animal {
+    private name: string // Error:アクセス修飾子を宣言することができない
+    readonly name: string // readonly
+    eat(food: string): void
+    sleep(hours: number): void
+}
+```
+- クラスが実装できるのは１つのインターフェースに限らず、お好きなだけ複数のインターフェースを実装することができる
+
+```typescript=
+interface Animal {
+    eat(food: string): void
+    sleep(hours: number): void
+}
+interface Human {
+    work(hours: number): void
+}
+
+class Cat implements Animal, Human { // 複数のインターフェース
+    eat(food: string) {
+        console.log('Ate some', food, '. Mmm!')
+    }
+    sleep(hours: number) {
+        console.log('Slept for', hours, 'hours')
+    }
+    work(hours: number) {
+        console.log('Work for', hours, 'hours')
+    }
+}
+```
