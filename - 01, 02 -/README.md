@@ -1,10 +1,8 @@
-# TypeScript オライリージャパン
+# -01-02- イントロダクション
 
-###### tags: `メモ`
+###### tags: `TypeScript`
 
-# イントロダクション
-
-TypeScript を使うことで受ける恩恵
+# TypeScript を使うことで受ける恩恵
 
 - ミスをチェックしたりすることでプログラムをより安全に
 - リファクタリングを容易に
@@ -13,47 +11,46 @@ TypeScript を使うことで受ける恩恵
 - プログラマーとしての生産性が 2 倍
 - ~~通りの向こう側の可愛いバリスタとのデートが実現できる~~
 
-## 型安全性（type safety）
+# 型安全性（type safety）
 
 型を使って、プログラムが不正な事をしないように防ぐこと
 
 **JavaScript** - 不正なことをしようとしてもエラーを出さずに、（親切に、静かに）プログラマーの意図を解釈して最善な値を返してくれる親切な言語
 
-```javascript=
-3 + [] // 文字列の3と評価
+```javascript
+// JavaScript
+3 + []; // 文字列の3と評価
 
 const object = {};
 object.foo; // undefined（未定義）と評価
 
 function hoge(number) {
-    return number/2;
-};
+	return number / 2;
+}
 hoge("foo"); // NaNと評価
-
 ```
 
 **TypeScript** - 不正なことをしようとすると即座にエラーを起こし、型警察としての職務を全うすることに執着した頑固な言語
 
-```typescript=
-3 + [] // error:数字と文字列の演算はできないよ！
+```typescript
+// TypeScript
+3 + []; // error:数字と文字列の演算はできないよ！
 
 const object = {};
 object.foo; // error:objectはfooなんて持ってないよ！
 
 function hoge(number) {
-    return number/2;
-};
+	return number / 2;
+}
 hoge("foo"); // error:hoge()の引数は数値型が欲しい！
 ```
 
-### エラーを出すタイミング
+## エラーを出すタイミング
 
 **JavaScript** - プログラムを実行したとき  
 **TypeScript** - エディターで記述したとき
 
-# TypeScript：全体像
-
-## コンパイラー
+# コンパイラー
 
 **Java 等のコンパイル実行**
 
@@ -67,7 +64,7 @@ hoge("foo"); // error:hoge()の引数は数値型が欲しい！
 2. TypeScript AST が JavaScript コードにコンパイルされる
 3. バイトコードがランタイムによって評価される
 
-## 型チェッカー（typechecker）
+# 型チェッカー（typechecker）
 
 コードが型安全であることを検証する特別なプログラム
 
@@ -77,17 +74,18 @@ hoge("foo"); // error:hoge()の引数は数値型が欲しい！
 - 明らかなミスが存在しない
 - ~~通りの向こう側の可愛いバリスタが後で電話してくれる~~
 
-## 型システム(type system)
+# 型システム(type system)
 
 プログラマーが作成したプログラムに型を割り当てるために型チェッカーが使用するルールの集まり
 
-### アノテーション
+## アノテーション
 
 型が何かを明示的に TypeScript に伝えるためにはアノテーションを使用する
 
 > アノテーションとは「値：型」という形式を取り、型チェッカーに「ここに値が見えるだろ？その横にあるのがその値の型だよ」と伝える
 
-```typescript=
+```typescript
+// TypeScript
 const a: number = 1; //　aはnumberです
 const b: string = "foo"; //　bはstringです
 const c: boolean[] = [true, false]; //　cはbooleanの配列です
@@ -95,13 +93,14 @@ const c: boolean[] = [true, false]; //　cはbooleanの配列です
 
 明示的に型を宣言しなくても TypeScript は型を推論してくれる（これを TypeScript の魔法と呼ぶらしい）
 
-```typescript=
+```typescript
+// TypeScript
 const a = 1; //　aはnumberです
 const b = "foo"; //　bはstringです
 const c = [true, false]; //　cはbooleanの配列です
 ```
 
-### TypeScript⚔JavaScript
+## TypeScript⚔JavaScript
 
 | 型システムの特徴                 | JavaScript           | TypeScript                 |
 | -------------------------------- | -------------------- | -------------------------- |
@@ -110,7 +109,7 @@ const c = [true, false]; //　cはbooleanの配列です
 | 型はいつチェックされるか？       | 実行時               | コンパイル時               |
 | エラーはいつ表面化するか？       | 実行時（多くの場合） | コンパイル時（多くの場合） |
 
-### 1. 型はどのようにバインドされるか?
+## 1. 型はどのようにバインドされるか?
 
 JavaScript の「型が動的にバインドされる」とは、型を知るためにはまず実行しないと型について解釈するまでに辿り着けないということ
 
@@ -120,11 +119,11 @@ TypeScript は型付けしていないプログラムでさえ、実行前に（
 
 - プログラム内の全てのものの型がわかっている場合に TypeScript は最も力を発揮するが、**プログラムをコンパイルするためには必ずしも全ての型がわかっている必要はない**
 
-### 2. 型は自動的に変換されるか?
+## 2. 型は自動的に変換されるか?
 
 JavaScript は弱く型付けされた言語なので、最善の結果を返せるように一連のルールを適用してプログラマーの意図を理解しようとしてくれる
 
-```javascript=
+```javascript
 const foo1 = 3 + [1];
 consle.log(foo1); // "31"
 ```
@@ -139,14 +138,16 @@ JavaScript はこのプログラムを、
 
 また上記のフローを明示的にプログラミングすることができる
 
-```javascript=
+```javascript
+// JavaScript
 const foo2 = (3).toString() + [1].toString();
 consle.log(foo2); // "31"
 ```
 
 **しかし、TypeScript はこの暗黙的に変換する作業をしないのである**
 
-```typescript=
+```typescript
+// TypeScript
 const hoge1 = 3 + [1];
 consle.log(hoge1); // error:数値型と配列型だから違うモノ同士だよ
 
@@ -160,19 +161,19 @@ JavaScript が行う暗黙的な型の変換は、突き止めの難しいエラ
 
 要するに、**型を変換する必要がある場合は明示的に書きましょうというお話でした **
 
-### 3. 型はいつチェックされるか?
+## 3. 型はいつチェックされるか?
 
 **JavaScript** - プログラム実行時にチェック  
 **TypeScript** - コードを書いた時に型推論を行いチェック
 
-### 4. エラーはいつ表面化するか?
+## 4. エラーはいつ表面化するか?
 
 **JavaScript** - プログラム実行時にエラーを throw  
 **TypeScript** - コードをコンパイルした際にエラーを throw
 
-## TypeScript を書くために
+# TypeScript を書くために
 
-### tsconfig.json
+## tsconfig.json
 
 すべての TypeScript プロジェクトは、そのルートディレクトリに tsconfig.json と呼ばれるプロジェクトで扱う TypeScript ファイルについて設定を書かなければいけない
 
@@ -192,7 +193,7 @@ JavaScript が行う暗黙的な型の変換は、突き止めの難しいエラ
 }
 ```
 
-tsconfig.json のオプション
+## tsconfig.json のオプション
 
 | オプション | 説明                                                                   | 　記述例                 |
 | ---------- | ---------------------------------------------------------------------- | ------------------------ |
@@ -202,25 +203,3 @@ tsconfig.json のオプション
 | outDir     | 生成する JavaScript コードを TSC がどのフォルダに格納するべきか        | dist, out                |
 | strict     | 厳密にコードをチェックするか                                           | 　 true                  |
 | target     | TSC がコードをどの JavaScript バージョンにコンパイルするか             | es3, es5, es2015, es2016 |
-
-# 型について
-
-# 関数
-
-# クラスとインターフェース
-
-# 高度な型
-
-# エラー処理
-
-# 非同期プログラミングと並行、並列処理
-
-# フロントエンドとバックエンドのフレームワーク
-
-# 名前空間とモジュール
-
-# JavaScirpt との相互運用
-
-# TypeScript のビルドと実行
-
-# 終わりに
